@@ -107,7 +107,7 @@ async function nftGet(apikey, chain, tokenAddress, tokenId, params) {
   }
 }
 
-//NFT Get
+//NFT Add
 async function nftAdd(apikey, params, attributes) {
   const url = 'https://api.offsetdata.com/graphql';
   // Generate the fields to include in the GraphQL query based on the input params array
@@ -190,10 +190,68 @@ async function nftDel(apikey, chain, tokenAddress, tokenId) {
     }
   }
 
+
+//NFT UPDATE
+async function nftUpd(apikey, params, attributes) {
+    const url = 'https://api.offsetdata.com/graphql';
+    // Generate the fields to include in the GraphQL query based on the input params array
+    const attributesString = attributes
+      ? `[${attributes
+          .map(
+            (attr) => `{
+        value: "${attr.value}",
+        trait_type: "${attr.trait_type}"
+      }`
+          )
+          .join(', ')}]`
+      : '[]';
+  
+    const query = `
+    mutation {
+      nftUpd(meta: {
+          apikey: "${apikey}"
+          chain: "${params.chain}"
+          tokenAddress: "${params.tokenAddress}"
+          tokenId: "${params.tokenId}"
+          title: "${params.title}"
+          description: "${params.description}"
+          symbol: "${params.symbol}"
+          tokenType: "ERC721"
+          tokenUri: {
+            raw: "${params.tokenUri.raw}",
+            gateway:"${params.tokenUri.gateway}",
+          }
+          media: {
+                  raw: "${params.media.raw}",
+                  gateway: "${params.media.gateway}",
+                  thumbnail: "${params.media.thumbnail}",
+                  format: "${params.media.format}"
+          }
+          attributes: ${attributesString}
+      }) {
+       status
+      }
+    }
+          `;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    try {
+      const response = await axios.post(url, { query }, config);
+      return response.data.data.nftUpd;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  
 module.exports = {
   version,
   nftMap,
   nftGet,
   nftAdd,
-  nftDel
+  nftDel,
+    nftUpd,
 };
