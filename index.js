@@ -162,7 +162,7 @@ async function nftAdd(apikey, params, attributes) {
   }
 }
 
-//NFT Mapping
+//NFT Delete
 async function nftDel(apikey, chain, tokenAddress, tokenId) {
     const url = 'https://api.offsetdata.com/graphql';
     const query = `
