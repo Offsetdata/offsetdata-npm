@@ -83,3 +83,14 @@ const offsetdata = require('offsetdata');
 //   .catch(error => {
 //     console.error(error);
 //   });
+
+
+// *** test NFT DELETE
+
+offsetdata.nftDel("KEY", "eth", "0xb334a4eb0a2d6cc24fd451e779c002b9b33228c3", "2650")
+  .then(object => {
+    console.log(object);
+  })
+  .catch(error => {
+    console.error(error);
+  });

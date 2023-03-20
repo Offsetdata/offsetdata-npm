@@ -162,9 +162,38 @@ async function nftAdd(apikey, params, attributes) {
   }
 }
 
+//NFT Mapping
+async function nftDel(apikey, chain, tokenAddress, tokenId) {
+    const url = 'https://api.offsetdata.com/graphql';
+    const query = `
+      mutation {
+        nftDel(meta: {
+          apikey: "${apikey}"
+          chain: "${chain}"
+          tokenAddress: "${tokenAddress}"
+          tokenId: "${tokenId}"
+        }) {
+          status
+        }
+      }
+    `;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    try {
+      const response = await axios.post(url, { query }, config);
+      return response.data.data.nftDel;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
 module.exports = {
   version,
   nftMap,
   nftGet,
   nftAdd,
+  nftDel
 };
