@@ -164,8 +164,8 @@ async function nftAdd(apikey, params, attributes) {
 
 //NFT Delete
 async function nftDel(apikey, chain, tokenAddress, tokenId) {
-    const url = 'https://api.offsetdata.com/graphql';
-    const query = `
+  const url = 'https://api.offsetdata.com/graphql';
+  const query = `
       mutation {
         nftDel(meta: {
           apikey: "${apikey}"
@@ -177,36 +177,35 @@ async function nftDel(apikey, chain, tokenAddress, tokenId) {
         }
       }
     `;
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-    try {
-      const response = await axios.post(url, { query }, config);
-      return response.data.data.nftDel;
-    } catch (error) {
-      throw new Error(error);
-    }
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  try {
+    const response = await axios.post(url, { query }, config);
+    return response.data.data.nftDel;
+  } catch (error) {
+    throw new Error(error);
   }
-
+}
 
 //NFT UPDATE
 async function nftUpd(apikey, params, attributes) {
-    const url = 'https://api.offsetdata.com/graphql';
-    // Generate the fields to include in the GraphQL query based on the input params array
-    const attributesString = attributes
-      ? `[${attributes
-          .map(
-            (attr) => `{
+  const url = 'https://api.offsetdata.com/graphql';
+  // Generate the fields to include in the GraphQL query based on the input params array
+  const attributesString = attributes
+    ? `[${attributes
+        .map(
+          (attr) => `{
         value: "${attr.value}",
         trait_type: "${attr.trait_type}"
       }`
-          )
-          .join(', ')}]`
-      : '[]';
-  
-    const query = `
+        )
+        .join(', ')}]`
+    : '[]';
+
+  const query = `
     mutation {
       nftUpd(meta: {
           apikey: "${apikey}"
@@ -233,25 +232,62 @@ async function nftUpd(apikey, params, attributes) {
       }
     }
           `;
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-    try {
-      const response = await axios.post(url, { query }, config);
-      return response.data.data.nftUpd;
-    } catch (error) {
-      throw new Error(error);
-    }
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  try {
+    const response = await axios.post(url, { query }, config);
+    return response.data.data.nftUpd;
+  } catch (error) {
+    throw new Error(error);
   }
+}
 
-  
+//NFT SEARCH
+async function nftSearch(apikey, searchQuery, returnedResults) {
+  const { tokenId, title, description, symbol, tokenAddress, attributes } = searchQuery;
+  let attributesQuery = '';
+  if (attributes) {
+    attributesQuery = `attributes: ${attributes.map(attr => `{${Object.entries(attr).map(([key, value]) => `${key}: "${value}"`).join(', ')}}`).join(', ')}`
+  }
+  const url = 'https://api.offsetdata.com/graphql';
+  const query = `
+    query {
+      nftSearch(meta: {
+        apikey: "${apikey}"
+        ${tokenAddress ? `tokenAddress: "${tokenAddress}"` : ''}
+        ${tokenId ? `tokenId: "${tokenId}"` : ''}
+        ${title ? `title: "${title}"` : ''}
+        ${description ? `description: "${description}"` : ''}
+        ${symbol ? `symbol: "${symbol}"` : ''}
+        ${attributesQuery}
+      }) {
+        ${returnedResults && returnedResults.length > 0 ? returnedResults.join('\n') : 'status'}
+   
+      }
+    }
+  `;
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  try {
+    const response = await axios.post(url, { query }, config);
+    return response.data.data.nftSearch;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 module.exports = {
   version,
   nftMap,
   nftGet,
   nftAdd,
   nftDel,
-    nftUpd,
+  nftUpd,
+  nftSearch,
 };

@@ -3,5 +3,5 @@ Offsetdata NPM package for simplified Web3 data managing and storage on blockcha
 
 #
 ```
-npm offsetdata
+npm install offsetdata
 ```
