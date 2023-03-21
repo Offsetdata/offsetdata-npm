@@ -27,7 +27,19 @@ async function version(params) {
 
     return version;
   } catch (error) {
-    throw new Error(error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
   }
 }
 
@@ -55,7 +67,19 @@ async function nftMap(apikey, chain, tokenAddress, tokenId) {
     const response = await axios.post(url, { query }, config);
     return response.data.data.nftMap;
   } catch (error) {
-    throw new Error(error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
   }
 }
 
@@ -103,7 +127,19 @@ async function nftGet(apikey, chain, tokenAddress, tokenId, params) {
     const response = await axios.post(url, { query }, config);
     return response.data.data.nftGet;
   } catch (error) {
-    throw new Error(error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
   }
 }
 
@@ -158,7 +194,19 @@ async function nftAdd(apikey, params, attributes) {
     const response = await axios.post(url, { query }, config);
     return response.data.data.nftAdd;
   } catch (error) {
-    throw new Error(error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
   }
 }
 
@@ -186,7 +234,19 @@ async function nftDel(apikey, chain, tokenAddress, tokenId) {
     const response = await axios.post(url, { query }, config);
     return response.data.data.nftDel;
   } catch (error) {
-    throw new Error(error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
   }
 }
 
@@ -241,22 +301,43 @@ async function nftUpd(apikey, params, attributes) {
     const response = await axios.post(url, { query }, config);
     return response.data.data.nftUpd;
   } catch (error) {
-    throw new Error(error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
   }
 }
 
 //NFT SEARCH
 async function nftSearch(apikey, searchQuery, returnedResults) {
-  const { tokenId, title, description, symbol, tokenAddress, attributes } = searchQuery;
+  const { tokenId, title, description, symbol, tokenAddress, attributes } =
+    searchQuery;
   let attributesQuery = '';
   if (attributes) {
-    attributesQuery = `attributes: ${attributes.map(attr => `{${Object.entries(attr).map(([key, value]) => `${key}: "${value}"`).join(', ')}}`).join(', ')}`
+    attributesQuery = `attributes: ${attributes
+      .map(
+        (attr) =>
+          `{${Object.entries(attr)
+            .map(([key, value]) => `${key}: "${value}"`)
+            .join(', ')}}`
+      )
+      .join(', ')}`;
   }
   const url = 'https://api.offsetdata.com/graphql';
   const query = `
     query {
       nftSearch(meta: {
-        apikey: "${apikey}"
+
+        apikey : "${apikey}"
         ${tokenAddress ? `tokenAddress: "${tokenAddress}"` : ''}
         ${tokenId ? `tokenId: "${tokenId}"` : ''}
         ${title ? `title: "${title}"` : ''}
@@ -264,7 +345,11 @@ async function nftSearch(apikey, searchQuery, returnedResults) {
         ${symbol ? `symbol: "${symbol}"` : ''}
         ${attributesQuery}
       }) {
-        ${returnedResults && returnedResults.length > 0 ? returnedResults.join('\n') : 'status'}
+        ${
+          returnedResults && returnedResults.length > 0
+            ? returnedResults.join('\n')
+            : 'status'
+        }
    
       }
     }
@@ -278,7 +363,19 @@ async function nftSearch(apikey, searchQuery, returnedResults) {
     const response = await axios.post(url, { query }, config);
     return response.data.data.nftSearch;
   } catch (error) {
-    throw new Error(error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
   }
 }
 
