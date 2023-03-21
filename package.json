@@ -1,6 +1,6 @@
 {
   "name": "offsetdata",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Web3 Data Storage and Management package by Offsetdata Ltd. More information on Offsetdata.com",
   "main": "index.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "basechain",
     "base",
     "od",
-    "dlt."
+    "dlt"
   ],
   "author": "Offsetdata Ltd",
   "license": "ISC",
