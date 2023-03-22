@@ -1,6 +1,6 @@
 {
   "name": "offsetdata",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Web3 Data Storage and Management package by Offsetdata Ltd. More information on Offsetdata.com",
   "main": "index.js",
   "scripts": {
@@ -29,7 +29,17 @@
     "basechain",
     "base",
     "od",
-    "dlt"
+    "dlt",
+    "blockchain",
+    "nft",
+    "non-fungible",
+    "non-fungible-token",
+    "non-fungible-tokens",
+    "non-fungible-token-standard",
+    "non-fungible-token-standards",
+    "ERC"
+
+
   ],
   "author": "Offsetdata Ltd",
   "license": "ISC",
