@@ -1,6 +1,6 @@
 {
   "name": "offsetdata",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Web3 Data Storage and Management package by Offsetdata Ltd. More information on Offsetdata.com",
   "main": "index.js",
   "scripts": {

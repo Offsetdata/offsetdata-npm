@@ -550,6 +550,7 @@ async function dataAdd(apikey, dataObject) {
       visibility: "${dataObject.visibility}"
     }) {
       status
+      txHash
     }
   }
   `;
