@@ -470,6 +470,91 @@ async function nftSearch(apikey, searchQuery, returnedResults) {
   }
 }
 
+//NFT MAPP ALL
+async function nftMapAll(
+  apikey,
+  chain,
+  tokenAddress,
+  numberOfTokens,
+  rangeFromTo
+) {
+  if (typeof apikey !== 'string') {
+    throw new Error(
+      "API key is required. Try running -->  offsetdata.nftMapAll('your api key', 'chain', 'tokenAddress', 'numberOfTokens', 'rangeFromTo')"
+    );
+  }
+  if (apikey.length !== 46) {
+    throw new Error(
+      'Invalid API key format. Check your api keys at app.offsetdata.com/apikeys'
+    );
+  }
+
+  let tempRangeFrom = '';
+  let tempRangeTo = '';
+  let tempNumberOfTokens = '';
+
+  if (Array.isArray(numberOfTokens)) {
+    if (numberOfTokens.length === 2) {
+      tempRangeFrom = numberOfTokens[0];
+      tempRangeTo = numberOfTokens[1];
+    } else {
+    }
+  } else {
+    if (!rangeFromTo) {
+      tempNumberOfTokens = numberOfTokens;
+      tempRangeFrom = '';
+      tempRangeTo = '';
+    } else {
+      tempNumberOfTokens = '';
+      tempRangeFrom = rangeFromTo[0];
+      tempRangeTo = rangeFromTo[1];
+    }
+  }
+  const url = 'https://api.offsetdata.com/graphql';
+  const query = `
+    mutation {
+      nftMapAll(meta: {
+        apikey: "${apikey}"
+        chain: "${chain}"
+        tokenAddress: "${tokenAddress}"
+           numberOfTokens: "${tempNumberOfTokens}"
+            rangeFrom: "${tempRangeFrom}"
+            rangeTo: "${tempRangeTo}"
+ 
+      }) {
+        status
+      }
+    }
+  `;
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  try {
+    const response = await axios.post(url, { query }, config);
+    if (response.data.data.nftMapAll.status === 'Invalid Key') {
+      throw new Error('API key provided is invalid');
+    } else {
+      return response.data.data.nftMapAll;
+    }
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
+  }
+}
+
 //DATA ADD
 async function dataAdd(apikey, dataObject) {
   // checking if api key provided
@@ -901,6 +986,7 @@ module.exports = {
   nftDel,
   nftUpd,
   nftSearch,
+  nftMapAll,
   dataAdd,
   dataVerify,
   dataFind,
