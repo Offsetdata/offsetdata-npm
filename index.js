@@ -116,16 +116,18 @@ async function nftGet(apikey, chain, tokenAddress, tokenId, params) {
   if (!params || params.length == 0) {
     fields = [
       'status',
-      'chain',
-      'tokenAddress',
-      'tokenId',
-      'title',
-      'description',
-      'symbol',
-      'tokenType',
-      'tokenUri { raw gateway }',
-      'media { raw gateway thumbnail format }',
-      'attributes { value trait_type }',
+      "chain",
+      "tokenAddress",
+      "tokenId",
+      "name",
+      "image",
+      "description",
+      "symbol",
+      "tokenType",
+      "tokenUri { raw gateway }",
+      "media { raw gateway thumbnail format }",
+      "attributes { value trait_type display_type key max_value link }",
+      'layer1 { name description symbol tokenUri { raw gateway } media { image_data background_image image_url background_color animation_url external_url youtube_url raw gateway thumbnail format mimeType }  attributes { value trait_type display_type key max_value link }       properties { points status type owner price ipfs location license edition date gender id is_normalized version last_request_date } audio { artist title duration losslessAudio bpm credits lyrics genre isrc key artwork } virtual { asset3d tpose model pfp experience interactivity}} ',
     ];
   } else {
     fields = params.map((param) => `${param}\n`).join('');
@@ -190,12 +192,38 @@ async function nftAdd(apikey, params, attributes) {
     ? `[${attributes
         .map(
           (attr) => `{
-      value: "${attr.value}",
-      trait_type: "${attr.trait_type}"
+      value: "${attr.value ? attr.value : null}",
+      trait_type: "${attr.trait_type ? attr.trait_type : null}"
+      display_type: "${attr.display_type ? attr.display_type : null}"
+      key: "${attr.key ? attr.key : null}"
+      max_value: "${attr.max_value ? attr.max_value : null }"
+      link: "${attr.link ? attr.link : null}"
+    
     }`
         )
         .join(', ')}]`
     : '[]';
+    let propertiesString = null;
+    let mediaString = null;
+    let tokenUriString = null;
+    let audioString = null;
+    let virtualString = null;
+    if(params.media) {
+    mediaString = `{ ${Object.entries(params.media).map(([key, value]) => `${key}: "${value}"`).join(', ')} }`;
+    }
+    if(params.tokenUri) {
+    tokenUriString = `{ ${Object.entries(params.tokenUri).map(([key, value]) => `${key}: "${value}"`).join(', ')} }`;
+    }
+    if(params.audio) {
+      audioString = `{ ${Object.entries(params.audio).map(([key, value]) => `${key}: "${value}"`).join(', ')} }`;
+    }
+    if(params.virtual) {
+      virtualString = `{ ${Object.entries(params.virtual).map(([key, value]) => `${key}: "${value}"`).join(', ')} }`;
+    }
+    if(params.properties) {
+    propertiesString = `{ ${Object.entries(params.properties).map(([key, value]) => `${key}: "${value}"`).join(', ')} }`;
+    }
+
 
   const query = `
   mutation {
@@ -204,20 +232,16 @@ async function nftAdd(apikey, params, attributes) {
         chain: "${params.chain}"
         tokenAddress: "${params.tokenAddress}"
         tokenId: "${params.tokenId}"
-        title: "${params.title}"
+        name: "${params.name}"
+        image: "${params.image}"
         description: "${params.description}"
         symbol: "${params.symbol}"
-        tokenType: "ERC721"
-        tokenUri: {
-          raw: "${params.tokenUri.raw}",
-          gateway:"${params.tokenUri.gateway}",
-        }
-        media: {
-                raw: "${params.media.raw}",
-                gateway: "${params.media.gateway}",
-                thumbnail: "${params.media.thumbnail}",
-                format: "${params.media.format}"
-        }
+        tokenType: "${params.tokenType}"
+        tokenUri: ${tokenUriString}
+        media: ${mediaString}
+        properties: ${propertiesString}
+        audio: ${audioString}
+        virtual: ${virtualString}
         attributes: ${attributesString}
     }) {
      status
@@ -324,17 +348,23 @@ async function nftUpd(apikey, params, attributes) {
   }
   const url = 'https://api.offsetdata.com/graphql';
   // Generate the fields to include in the GraphQL query based on the input params array
-  const attributesString = attributes
-    ? `[${attributes
-        .map(
-          (attr) => `{
-        value: "${attr.value}",
-        trait_type: "${attr.trait_type}"
+  let attributesString = attributes
+  ? `[${attributes
+    .map(
+      (attr) => `{
+        value: ${attr.value !== undefined ? `"${attr.value}"` : null},
+        trait_type: ${attr.trait_type !== undefined ? `"${attr.trait_type}"` : null},
+        display_type: ${attr.display_type !== undefined ? `"${attr.display_type}"` : null},
+        key: ${attr.key !== undefined ? `"${attr.key}"` : null},
+        max_value: ${attr.max_value !== undefined ? `"${attr.max_value}"` : null},
+        link: ${attr.link !== undefined ? `"${attr.link}"` : null}
       }`
-        )
-        .join(', ')}]`
-    : '[]';
-
+    )
+    .join(', ')}]`
+  : null;
+if(attributesString === '[]') {
+  attributesString = null;
+}
   const query = `
     mutation {
       nftUpd(meta: {
@@ -342,21 +372,71 @@ async function nftUpd(apikey, params, attributes) {
           chain: "${params.chain}"
           tokenAddress: "${params.tokenAddress}"
           tokenId: "${params.tokenId}"
-          title: "${params.title}"
-          description: "${params.description}"
-          symbol: "${params.symbol}"
-          tokenType: "ERC721"
-          tokenUri: {
-            raw: "${params.tokenUri.raw}",
-            gateway:"${params.tokenUri.gateway}",
+          layer1: {
+            name: ${params.name ? `"${params.name}"` : null}
+            image: ${params.image ? `"${params.image}"` : null}
+            description: ${params.description ? `"${params.description}"` : null}
+            symbol: ${params.symbol ? `"${params.symbol}"` : null}
+
+            tokenUri: ${params.tokenUri ? `{
+                raw: ${params.tokenUri.raw ? `"${params.tokenUri.raw}"` : null},
+                gateway: ${params.tokenUri.gateway ? `"${params.tokenUri.gateway}"` : null},
+            }` : null}
+            media: ${params.media ? `{
+                image_data: ${params.media.image_data ? `"${params.media.image_data}"` : null},
+                background_image: ${params.media.background_image ? `"${params.media.background_image}"` : null},
+                image_url: ${params.media.image_url ? `"${params.media.image_url}"` : null},
+                background_color: ${params.media.background_color ? `"${params.media.background_color}"` : null},
+                animation_url: ${params.media.animation_url ? `"${params.media.animation_url}"` : null},
+                external_url: ${params.media.external_url ? `"${params.media.external_url}"` : null},
+                youtube_url: ${params.media.youtube_url ? `"${params.media.youtube_url}"` : null},
+                raw: ${params.media.raw ? `"${params.media.raw}"` : null},
+                gateway: ${params.media.gateway ? `"${params.media.gateway}"` : null},
+                thumbnail: ${params.media.thumbnail ? `"${params.media.thumbnail}"` : null},
+                format: ${params.media.format ? `"${params.media.format}"` : null},
+                mimeType: ${params.media.mimeType ? `"${params.media.mimeType}"` : null},
+      }` : null}
+            properties : ${params.properties ? `{
+                points: ${params.properties.points ? `"${params.properties.points}"` : null},
+                status: ${params.properties.status ? `"${params.properties.status}"` : null},
+                type:   ${params.properties.type ? `"${params.properties.type}"` : null},
+                owner: ${params.properties.owner ? `"${params.properties.owner}"` : null},
+                price: ${params.properties.price ? `"${params.properties.price}"` : null},
+                ipfs: ${params.properties.ipfs ? `"${params.properties.ipfs}"` : null},
+                location: ${params.properties.location ? `"${params.properties.location}"` : null},
+                license: ${params.properties.license ? `"${params.properties.license}"` : null},
+                edition: ${params.properties.edition ? `"${params.properties.edition}"` : null},
+                date: ${params.properties.date ? `"${params.properties.date}"` : null},
+                gender:  ${params.properties.gender ? `"${params.properties.gender}"` : null},
+                id: ${params.properties.id ? `"${params.properties.id}"` : null},
+                is_normalized: ${params.properties.is_normalized ? `"${params.properties.is_normalized}"` : null},
+                version: ${params.properties.version ? `"${params.properties.version}"` : null},
+                last_request_date: ${params.properties.last_request_date ? `"${params.properties.last_request_date}"` : null},
+            }` : null}
+            audio: ${params.audio ? `{
+                artist: ${params.audio.artist ? `"${params.audio.artist}"` : null},
+                title: ${params.audio.title ? `"${params.audio.title}"` : null},
+                duration: ${params.audio.duration ? `"${params.audio.duration}"` : null},
+                losslessAudio: ${params.audio.losslessAudio ? `"${params.audio.losslessAudio}"` : null},
+                bpm: ${params.audio.bpm ? `"${params.audio.bpm}"` : null},
+                artwork: ${params.audio.artwork ? `"${params.audio.artwork}"` : null},
+                credits: ${params.audio.credits ? `"${params.audio.credits}"` : null},
+                lyrics: ${params.audio.lyrics ? `"${params.audio.lyrics}"` : null},
+                genre: ${params.audio.genre ? `"${params.audio.genre}"` : null},
+                isrc: ${params.audio.isrc ? `"${params.audio.isrc}"` : null},
+                key: ${params.audio.key ? `"${params.audio.key}"` : null},
+            }` : null}
+            virtual: ${params.virtual ? `{
+                asset3d: ${params.virtual.asset3d ? `"${params.virtual.asset3d}"` : null},
+                tpose: ${params.virtual.tpose ? `"${params.virtual.tpose}"` : null},
+                model: ${params.virtual.model ? `"${params.virtual.model}"` : null},
+                pfp: ${params.virtual.pfp ? `"${params.virtual.pfp}"` : null},
+                experience: ${params.virtual.experience ? `"${params.virtual.experience}"` : null},
+                interactivity:  ${params.virtual.interactivity ? `"${params.virtual.interactivity}"` : null},
+            }` : null}
+            attributes: ${attributesString}
+
           }
-          media: {
-                  raw: "${params.media.raw}",
-                  gateway: "${params.media.gateway}",
-                  thumbnail: "${params.media.thumbnail}",
-                  format: "${params.media.format}"
-          }
-          attributes: ${attributesString}
       }) {
        status
       }
@@ -405,7 +485,7 @@ async function nftSearch(apikey, searchQuery, returnedResults) {
     );
   }
 
-  const { tokenId, title, description, symbol, tokenAddress, attributes } =
+  const { tokenId, name, description, symbol, tokenAddress, attributes } =
     searchQuery;
   let attributesQuery = '';
   if (attributes) {
@@ -426,7 +506,7 @@ async function nftSearch(apikey, searchQuery, returnedResults) {
         apikey : "${apikey}"
         ${tokenAddress ? `tokenAddress: "${tokenAddress}"` : ''}
         ${tokenId ? `tokenId: "${tokenId}"` : ''}
-        ${title ? `title: "${title}"` : ''}
+        ${name ? `name: "${name}"` : ''}
         ${description ? `description: "${description}"` : ''}
         ${symbol ? `symbol: "${symbol}"` : ''}
         ${attributesQuery}
@@ -978,6 +1058,77 @@ async function dataFind(apikey, submissionHash, searchParams) {
   }
 }
 
+//NFT MAPPING
+async function txGet(apikey, params, results) {
+  if (typeof apikey !== 'string') {
+    throw new Error(
+      "API key is required. Try running -->  offsetdata.txGet('your api key', 'chain', 'walletAddress', 'transactionType', 'tokenType')"
+    );
+  }
+  if (apikey.length !== 46) {
+    throw new Error(
+      'Invalid API key format. Check your api keys at app.offsetdata.com/apikeys'
+    );
+  }
+
+  let tokenOrEth = null
+  if (params.tokenType.toLowerCase() === 'erc20') { 
+    tokenOrEth = 'ERC20'
+  } else if (params.tokenType.toLowerCase() === 'erc721') { 
+    tokenOrEth = 'ERC721'
+  } else if (params.tokenType.toLowerCase() === 'erc1155') {
+    tokenOrEth = 'ERC1155'
+  } else if (params.tokenType.toLowerCase() === 'eth') {
+    tokenOrEth = null
+  } 
+  const returnParams = ['blockNum', 'hash', 'from', 'to', 'value', 'erc721TokenId', 'erc1155Metadata', 'tokenId', 'asset']
+  const url = 'https://api.offsetdata.com/graphql';
+  const query = `
+    query {
+      txGet(tx: {
+        apikey: "${apikey}"
+        chain: "${params.chain}"
+        walletAddress: "${params.walletAddress}"
+        transactionType: "${params.transactionType}"
+        tokenType: ${tokenOrEth ? `"${tokenOrEth}"` : null}
+    
+      }) {
+        status
+        txArray {
+    ${results && results.length !== 0 ? results : returnParams.join(' ')}
+        }
+      }
+    }
+  `;
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  try {
+    const response = await axios.post(url, { query }, config);
+    if (response.data.data.txGet.status === 'Invalid Key') {
+      throw new Error('API key provided is invalid');
+    } else {
+      return response.data.data.txGet;
+    }
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
+  }
+}
+
 module.exports = {
   version,
   nftMap,
@@ -990,4 +1141,5 @@ module.exports = {
   dataAdd,
   dataVerify,
   dataFind,
+  txGet
 };
