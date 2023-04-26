@@ -1132,7 +1132,7 @@ async function txGet(apikey, params, results) {
 async function userUsage(apikey, range, results) {
   if (typeof apikey !== 'string') {
     throw new Error(
-      "API key is required. Try running -->  offsetdata.txGet('your api key', 'chain', 'walletAddress', 'transactionType', 'tokenType')"
+      "API key is required. Try running -->  offsetdata.userUsage('your api key', 'range', [results])"
     );
   }
   if (apikey.length !== 46) {
