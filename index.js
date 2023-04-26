@@ -1129,6 +1129,62 @@ async function txGet(apikey, params, results) {
   }
 }
 
+async function userUsage(apikey, range, results) {
+  if (typeof apikey !== 'string') {
+    throw new Error(
+      "API key is required. Try running -->  offsetdata.txGet('your api key', 'chain', 'walletAddress', 'transactionType', 'tokenType')"
+    );
+  }
+  if (apikey.length !== 46) {
+    throw new Error(
+      'Invalid API key format. Check your api keys at app.offsetdata.com/apikeys'
+    );
+  }
+
+  // const returnParams = {'range', 'usage', 'cost'}
+  const url = 'https://api.offsetdata.com/graphql';
+  const query = `
+  query {
+    userUsage(user: {
+      apikey: "${apikey}"
+      range: "${range}"
+    }) {
+      status
+      usage {
+        ${results}
+      }
+    }
+  }
+  `;
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  try {
+    const response = await axios.post(url, { query }, config);
+    if (response.data.data.userUsage.status === 'Invalid Key') {
+      throw new Error('API key provided is invalid');
+    } else {
+      return response.data.data.userUsage;
+    }
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
+  }
+}
+
 module.exports = {
   version,
   nftMap,
@@ -1141,5 +1197,6 @@ module.exports = {
   dataAdd,
   dataVerify,
   dataFind,
-  txGet
+  txGet,
+  userUsage
 };
