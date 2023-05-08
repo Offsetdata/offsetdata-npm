@@ -1185,6 +1185,60 @@ async function userUsage(apikey, range, results) {
   }
 }
 
+async function priceGet(apikey, token, results) {
+  if (typeof apikey !== 'string') {
+    throw new Error(
+      "API key is required. Try running -->  offsetdata.priceGet('your api key', 'token')"
+    );
+  }
+  if (apikey.length !== 46) {
+    throw new Error(
+      'Invalid API key format. Check your api keys at app.offsetdata.com/apikeys'
+    );
+  }
+
+  const resultFiller = ['status', 'priceUSD', 'lastUpdated']
+  const url = 'https://api.offsetdata.com/graphql';
+  const query = `
+  query {
+    priceGet(price: {
+      apikey: "${apikey}"
+      token: "${token}"
+    }) {
+      ${results && results.length !==0 ? results : resultFiller}
+    }
+  }
+  `;
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  try {
+    const response = await axios.post(url, { query }, config);
+    if (response.data.data.priceGet.status === 'Invalid Key') {
+      throw new Error('API key provided is invalid');
+    } else {
+      return response.data.data.priceGet;
+    }
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
+  }
+}
+
+
 module.exports = {
   version,
   nftMap,
@@ -1198,5 +1252,6 @@ module.exports = {
   dataVerify,
   dataFind,
   txGet,
-  userUsage
+  userUsage,
+  priceGet
 };
