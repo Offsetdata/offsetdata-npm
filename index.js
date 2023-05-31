@@ -128,7 +128,7 @@ async function nftBalance(apikey, walletAddress, results) {
         tokenId
         balance
       }
-    }`
+    }`,
   ];
 
   const url = 'https://api.offsetdata.com/graphql';
@@ -1216,7 +1216,7 @@ async function dataFind(apikey, submissionHash, searchParams) {
   // checking if api key provided
   if (typeof apikey !== 'string') {
     throw new Error(
-      "API key is required. Try running -->  offsetdata.dataVerify('your api key', {data object}, '0xHasheData' )"
+      "API key is required. Try running -->  offsetdata.dataFind('your api key', '0xSubmissionHash', {search params}  )"
     );
   }
   if (apikey.length !== 46) {
@@ -1287,7 +1287,7 @@ async function dataFind(apikey, submissionHash, searchParams) {
   }
 }
 
-//NFT MAPPING
+//TX GET
 async function txGet(apikey, params, results) {
   if (typeof apikey !== 'string') {
     throw new Error(
@@ -1350,6 +1350,75 @@ async function txGet(apikey, params, results) {
       throw new Error('API key provided is invalid');
     } else {
       return response.data.data.txGet;
+    }
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.errors) {
+      let errorMessage = error.response.data.errors[0].message;
+      if (error.response.data.errors.length > 1) {
+        error.response.data.errors.forEach((error, index) => {
+          if (index > 0) {
+            errorMessage += ` & ` + error.message;
+          }
+        });
+      }
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(error);
+    }
+  }
+}
+
+//DATA ALL
+async function dataAll(apikey, searchParams) {
+  // checking if api key provided
+  if (typeof apikey !== 'string') {
+    throw new Error(
+      "API key is required. Try running -->  offsetdata.dataAll('your api key', [search params] )"
+    );
+  }
+  if (apikey.length !== 46) {
+    throw new Error(
+      'Invalid API key format. Check your api keys at app.offsetdata.com/apikeys'
+    );
+  }
+
+  // checking if search params provided
+  if (typeof searchParams !== 'object') {
+    throw new Error(
+      "Search params is required. Try running -->  offsetdata.dataAll('your api key', [search params] )"
+    );
+  }
+  if (Object.keys(searchParams).length < 1) {
+    throw new Error(
+      "At least one search param is required. Try running -->  offsetdata.dataAll('your api key', [search params])"
+    );
+  }
+  const url = 'https://api.offsetdata.com/graphql';
+  let query = `
+  {
+    dataAll(data: {
+    apikey: "${apikey}"
+    }) {
+      records {
+        ${searchParams}
+      }
+  status
+    }
+  }
+ 
+    `;
+
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  try {
+    const response = await axios.post(url, { query }, config);
+    if (response.data.data.dataAll.status === 'Invalid Key') {
+      throw new Error('API key provided is invalid');
+    } else {
+      return response.data.data.dataAll;
     }
   } catch (error) {
     if (error.response && error.response.data && error.response.data.errors) {
@@ -1492,6 +1561,7 @@ module.exports = {
   dataAdd,
   dataVerify,
   dataFind,
+  dataAll,
   txGet,
   userUsage,
   priceGet,
