@@ -915,7 +915,6 @@ async function dataAdd(apikey, dataObject) {
   const requiredFields = [
     'chain',
     'submitter',
-    'formId',
     'reference',
     'record',
     'notes',
@@ -937,7 +936,6 @@ async function dataAdd(apikey, dataObject) {
       chain: "${dataObject.chain}"
       submitter: "${dataObject.submitter}"
       formType: "${formType}"
-    formId: ${dataObject.formId}
       reference: ${dataObject.reference}
       record: "${dataObject.record}"
       notes: "${dataObject.notes}"
@@ -999,7 +997,6 @@ async function dataAdd(apikey, dataObject) {
     chain: "${dataObject.chain}"
     submitter: "${dataObject.submitter}"
     formType: "${formType}"
-    formId: ${dataObject.formId}
     reference: ${dataObject.reference}
     record: "${dataObject.record}"
     notes: "${dataObject.notes}"
