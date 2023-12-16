@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const url = 'https://api.offsetdata.com/graphql'
+const url = 'https://api.offsetdata.com/graphql';
 
 const config = {
   headers: {
@@ -8,17 +8,22 @@ const config = {
   },
 };
 
-const checkApiKey = (apiKey, errorMessage = "") => {
+const checkApiKey = (apiKey, errorMessage = '') => {
   if (!apiKey) {
-    throw new Error("API key is required. Make sure to pass API key while creating offsetdata instance. " + errorMessage )
+    throw new Error(
+      'API key is required. Make sure to pass API key while creating offsetdata instance. ' +
+        errorMessage
+    );
   }
-  if (typeof apiKey !== "string") {
-    throw new Error("API key should be a string.")
+  if (typeof apiKey !== 'string') {
+    throw new Error('API key should be a string.');
   }
   if (apiKey.length !== 46) {
-    throw new Error("Invalid API key format. Check your api keys at app.offsetdata.com/apikeys")
+    throw new Error(
+      'Invalid API key format. Check your api keys at app.offsetdata.com/apikeys'
+    );
   }
-}
+};
 
 const makeRequest = async (query, functionName) => {
   const response = await axios.post(url, { query }, config);
@@ -27,7 +32,7 @@ const makeRequest = async (query, functionName) => {
   } else {
     return response.data.data[functionName];
   }
-}
+};
 
 const makeRequestWithDataObject = async (query, functionName, dataObject) => {
   const response = await axios.post(url, { query }, config);
@@ -38,7 +43,7 @@ const makeRequestWithDataObject = async (query, functionName, dataObject) => {
   } else {
     return response.data.data[functionName];
   }
-}
+};
 
 const handleError = (error) => {
   if (error.response && error.response.data && error.response.data.errors) {
@@ -54,16 +59,15 @@ const handleError = (error) => {
   } else {
     throw new Error(error);
   }
-}
+};
 
 class OffsetData {
-
   // properties required in class
   apiKey = null;
-  
+
   constructor(apiKey) {
-    checkApiKey(apiKey)
-    this.apiKey = apiKey
+    checkApiKey(apiKey);
+    this.apiKey = apiKey;
   }
 
   //VERSION
@@ -80,20 +84,22 @@ class OffsetData {
           ${fields}
         }
       }`;
-    
+
     try {
       const response = await axios.post(url, { query }, config);
       const { version } = response.data.data;
       return version;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //NFT MAPPING
   async nftMap(chain, tokenAddress, tokenId) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.nftMap('chain', 'tokenAddress', 'tokenId')")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.nftMap('chain', 'tokenAddress', 'tokenId')"
+    );
 
     const query = `
     mutation {
@@ -107,19 +113,21 @@ class OffsetData {
       }
     }
     `;
-    
+
     try {
-      const response = await makeRequest(query, "nftMap")
-      return response
+      const response = await makeRequest(query, 'nftMap');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //NFT BALANCE
   async nftBalance(walletAddress, results) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.nftBalance('walletAddress', 'results')")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.nftBalance('walletAddress', 'results')"
+    );
 
     const returnParams = [
       `status 
@@ -154,17 +162,19 @@ class OffsetData {
   `;
 
     try {
-      const response = await makeRequest(query, "nftBalance")
-      return response
+      const response = await makeRequest(query, 'nftBalance');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //NFT GET
   async nftGet(chain, tokenAddress, tokenId, params) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.nftGet('chain', 'tokenAddress', 'tokenId', {params})")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.nftGet('chain', 'tokenAddress', 'tokenId', {params})"
+    );
 
     // Generate the fields to include in the GraphQL query based on the input params array
     let fields = [];
@@ -200,25 +210,27 @@ class OffsetData {
         }
       }
     `;
-    
+
     try {
-      const response = await makeRequest(query, "nftGet")
-      return response
+      const response = await makeRequest(query, 'nftGet');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //NFT ADD
   async nftAdd(params, attributes) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.nftAdd({params}, [attributes])")
+    checkApiKey(
+      this.apiKey,
+      'Try running -->  offsetdata.nftAdd({params}, [attributes])'
+    );
 
     // Generate the fields to include in the GraphQL query based on the input params array
     const attributesString = attributes
       ? `[${attributes
-        .map(
-          (attr) => `{
+          .map(
+            (attr) => `{
       value: "${attr.value ? attr.value : null}",
       trait_type: "${attr.trait_type ? attr.trait_type : null}"
       display_type: "${attr.display_type ? attr.display_type : null}"
@@ -227,8 +239,8 @@ class OffsetData {
       link: "${attr.link ? attr.link : null}"
     
     }`
-        )
-        .join(', ')}]`
+          )
+          .join(', ')}]`
       : '[]';
     let propertiesString = null;
     let mediaString = null;
@@ -284,19 +296,21 @@ class OffsetData {
         }
       }
     `;
-    
+
     try {
-      const response = await makeRequest(query, "nftAdd")
-      return response
+      const response = await makeRequest(query, 'nftAdd');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
+    }
   }
-}
 
   //NFT DELETE
   async nftDel(chain, tokenAddress, tokenId) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.nftDel('chain', 'tokenAddress', 'tokenId')")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.nftDel('chain', 'tokenAddress', 'tokenId')"
+    );
 
     const query = `
       mutation {
@@ -310,37 +324,42 @@ class OffsetData {
         }
       }
     `;
-    
+
     try {
-      const response  = await makeRequest(query, "nftDel")
-      return response
+      const response = await makeRequest(query, 'nftDel');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //NFT UPDATE
   async nftUpd(params, attributes) {
-  
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.nftUpd({params}, '[attributes]})")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.nftUpd({params}, '[attributes]})"
+    );
 
     // Generate the fields to include in the GraphQL query based on the input params array
     let attributesString = attributes
       ? `[${attributes
-        .map(
-          (attr) => `{
+          .map(
+            (attr) => `{
         value: ${attr.value !== undefined ? `"${attr.value}"` : null},
-        trait_type: ${attr.trait_type !== undefined ? `"${attr.trait_type}"` : null
-            },
-        display_type: ${attr.display_type !== undefined ? `"${attr.display_type}"` : null
-            },
+        trait_type: ${
+          attr.trait_type !== undefined ? `"${attr.trait_type}"` : null
+        },
+        display_type: ${
+          attr.display_type !== undefined ? `"${attr.display_type}"` : null
+        },
         key: ${attr.key !== undefined ? `"${attr.key}"` : null},
-        max_value: ${attr.max_value !== undefined ? `"${attr.max_value}"` : null
-            },
+        max_value: ${
+          attr.max_value !== undefined ? `"${attr.max_value}"` : null
+        },
         link: ${attr.link !== undefined ? `"${attr.link}"` : null}
       }`
-        )
-        .join(', ')}]`
+          )
+          .join(', ')}]`
       : null;
     if (attributesString === '[]') {
       attributesString = null;
@@ -355,161 +374,205 @@ class OffsetData {
           layer1: {
             name: ${params.name ? `"${params.name}"` : null}
             image: ${params.image ? `"${params.image}"` : null}
-            description: ${params.description ? `"${params.description}"` : null
-      }
+            description: ${
+              params.description ? `"${params.description}"` : null
+            }
             symbol: ${params.symbol ? `"${params.symbol}"` : null}
 
-            tokenUri: ${params.tokenUri
-        ? `{
+            tokenUri: ${
+              params.tokenUri
+                ? `{
                 raw: ${params.tokenUri.raw ? `"${params.tokenUri.raw}"` : null},
-                gateway: ${params.tokenUri.gateway
-          ? `"${params.tokenUri.gateway}"`
-          : null
-        },
+                gateway: ${
+                  params.tokenUri.gateway
+                    ? `"${params.tokenUri.gateway}"`
+                    : null
+                },
             }`
-        : null
-      }
-            media: ${params.media
-        ? `{
-                image_data: ${params.media.image_data
-          ? `"${params.media.image_data}"`
-          : null
-        },
-                background_image: ${params.media.background_image
-          ? `"${params.media.background_image}"`
-          : null
-        },
-                image_url: ${params.media.image_url ? `"${params.media.image_url}"` : null
-        },
-                background_color: ${params.media.background_color
-          ? `"${params.media.background_color}"`
-          : null
-        },
-                animation_url: ${params.media.animation_url
-          ? `"${params.media.animation_url}"`
-          : null
-        },
-                external_url: ${params.media.external_url
-          ? `"${params.media.external_url}"`
-          : null
-        },
-                youtube_url: ${params.media.youtube_url
-          ? `"${params.media.youtube_url}"`
-          : null
-        },
+                : null
+            }
+            media: ${
+              params.media
+                ? `{
+                image_data: ${
+                  params.media.image_data
+                    ? `"${params.media.image_data}"`
+                    : null
+                },
+                background_image: ${
+                  params.media.background_image
+                    ? `"${params.media.background_image}"`
+                    : null
+                },
+                image_url: ${
+                  params.media.image_url ? `"${params.media.image_url}"` : null
+                },
+                background_color: ${
+                  params.media.background_color
+                    ? `"${params.media.background_color}"`
+                    : null
+                },
+                animation_url: ${
+                  params.media.animation_url
+                    ? `"${params.media.animation_url}"`
+                    : null
+                },
+                external_url: ${
+                  params.media.external_url
+                    ? `"${params.media.external_url}"`
+                    : null
+                },
+                youtube_url: ${
+                  params.media.youtube_url
+                    ? `"${params.media.youtube_url}"`
+                    : null
+                },
                 raw: ${params.media.raw ? `"${params.media.raw}"` : null},
-                gateway: ${params.media.gateway ? `"${params.media.gateway}"` : null
-        },
-                thumbnail: ${params.media.thumbnail ? `"${params.media.thumbnail}"` : null
-        },
-                format: ${params.media.format ? `"${params.media.format}"` : null
-        },
-                mimeType: ${params.media.mimeType ? `"${params.media.mimeType}"` : null
-        },
+                gateway: ${
+                  params.media.gateway ? `"${params.media.gateway}"` : null
+                },
+                thumbnail: ${
+                  params.media.thumbnail ? `"${params.media.thumbnail}"` : null
+                },
+                format: ${
+                  params.media.format ? `"${params.media.format}"` : null
+                },
+                mimeType: ${
+                  params.media.mimeType ? `"${params.media.mimeType}"` : null
+                },
       }`
-        : null
-      }
-            properties : ${params.properties
-        ? `{
-                points: ${params.properties.points
-          ? `"${params.properties.points}"`
-          : null
-        },
-                status: ${params.properties.status
-          ? `"${params.properties.status}"`
-          : null
-        },
-                type:   ${params.properties.type ? `"${params.properties.type}"` : null
-        },
-                owner: ${params.properties.owner
-          ? `"${params.properties.owner}"`
-          : null
-        },
-                price: ${params.properties.price
-          ? `"${params.properties.price}"`
-          : null
-        },
-                ipfs: ${params.properties.ipfs ? `"${params.properties.ipfs}"` : null
-        },
-                location: ${params.properties.location
-          ? `"${params.properties.location}"`
-          : null
-        },
-                license: ${params.properties.license
-          ? `"${params.properties.license}"`
-          : null
-        },
-                edition: ${params.properties.edition
-          ? `"${params.properties.edition}"`
-          : null
-        },
-                date: ${params.properties.date ? `"${params.properties.date}"` : null
-        },
-                gender:  ${params.properties.gender
-          ? `"${params.properties.gender}"`
-          : null
-        },
-                id: ${params.properties.id ? `"${params.properties.id}"` : null
-        },
-                is_normalized: ${params.properties.is_normalized
-          ? `"${params.properties.is_normalized}"`
-          : null
-        },
-                version: ${params.properties.version
-          ? `"${params.properties.version}"`
-          : null
-        },
-                last_request_date: ${params.properties.last_request_date
-          ? `"${params.properties.last_request_date}"`
-          : null
-        },
+                : null
+            }
+            properties : ${
+              params.properties
+                ? `{
+                points: ${
+                  params.properties.points
+                    ? `"${params.properties.points}"`
+                    : null
+                },
+                status: ${
+                  params.properties.status
+                    ? `"${params.properties.status}"`
+                    : null
+                },
+                type:   ${
+                  params.properties.type ? `"${params.properties.type}"` : null
+                },
+                owner: ${
+                  params.properties.owner
+                    ? `"${params.properties.owner}"`
+                    : null
+                },
+                price: ${
+                  params.properties.price
+                    ? `"${params.properties.price}"`
+                    : null
+                },
+                ipfs: ${
+                  params.properties.ipfs ? `"${params.properties.ipfs}"` : null
+                },
+                location: ${
+                  params.properties.location
+                    ? `"${params.properties.location}"`
+                    : null
+                },
+                license: ${
+                  params.properties.license
+                    ? `"${params.properties.license}"`
+                    : null
+                },
+                edition: ${
+                  params.properties.edition
+                    ? `"${params.properties.edition}"`
+                    : null
+                },
+                date: ${
+                  params.properties.date ? `"${params.properties.date}"` : null
+                },
+                gender:  ${
+                  params.properties.gender
+                    ? `"${params.properties.gender}"`
+                    : null
+                },
+                id: ${
+                  params.properties.id ? `"${params.properties.id}"` : null
+                },
+                is_normalized: ${
+                  params.properties.is_normalized
+                    ? `"${params.properties.is_normalized}"`
+                    : null
+                },
+                version: ${
+                  params.properties.version
+                    ? `"${params.properties.version}"`
+                    : null
+                },
+                last_request_date: ${
+                  params.properties.last_request_date
+                    ? `"${params.properties.last_request_date}"`
+                    : null
+                },
             }`
-        : null
-      }
-            audio: ${params.audio
-        ? `{
-                artist: ${params.audio.artist ? `"${params.audio.artist}"` : null
-        },
+                : null
+            }
+            audio: ${
+              params.audio
+                ? `{
+                artist: ${
+                  params.audio.artist ? `"${params.audio.artist}"` : null
+                },
                 title: ${params.audio.title ? `"${params.audio.title}"` : null},
-                duration: ${params.audio.duration ? `"${params.audio.duration}"` : null
-        },
-                losslessAudio: ${params.audio.losslessAudio
-          ? `"${params.audio.losslessAudio}"`
-          : null
-        },
+                duration: ${
+                  params.audio.duration ? `"${params.audio.duration}"` : null
+                },
+                losslessAudio: ${
+                  params.audio.losslessAudio
+                    ? `"${params.audio.losslessAudio}"`
+                    : null
+                },
                 bpm: ${params.audio.bpm ? `"${params.audio.bpm}"` : null},
-                artwork: ${params.audio.artwork ? `"${params.audio.artwork}"` : null
-        },
-                credits: ${params.audio.credits ? `"${params.audio.credits}"` : null
-        },
-                lyrics: ${params.audio.lyrics ? `"${params.audio.lyrics}"` : null
-        },
+                artwork: ${
+                  params.audio.artwork ? `"${params.audio.artwork}"` : null
+                },
+                credits: ${
+                  params.audio.credits ? `"${params.audio.credits}"` : null
+                },
+                lyrics: ${
+                  params.audio.lyrics ? `"${params.audio.lyrics}"` : null
+                },
                 genre: ${params.audio.genre ? `"${params.audio.genre}"` : null},
                 isrc: ${params.audio.isrc ? `"${params.audio.isrc}"` : null},
                 key: ${params.audio.key ? `"${params.audio.key}"` : null},
             }`
-        : null
-      }
-            virtual: ${params.virtual
-        ? `{
-                asset3d: ${params.virtual.asset3d ? `"${params.virtual.asset3d}"` : null
-        },
-                tpose: ${params.virtual.tpose ? `"${params.virtual.tpose}"` : null
-        },
-                model: ${params.virtual.model ? `"${params.virtual.model}"` : null
-        },
+                : null
+            }
+            virtual: ${
+              params.virtual
+                ? `{
+                asset3d: ${
+                  params.virtual.asset3d ? `"${params.virtual.asset3d}"` : null
+                },
+                tpose: ${
+                  params.virtual.tpose ? `"${params.virtual.tpose}"` : null
+                },
+                model: ${
+                  params.virtual.model ? `"${params.virtual.model}"` : null
+                },
                 pfp: ${params.virtual.pfp ? `"${params.virtual.pfp}"` : null},
-                experience: ${params.virtual.experience
-          ? `"${params.virtual.experience}"`
-          : null
-        },
-                interactivity:  ${params.virtual.interactivity
-          ? `"${params.virtual.interactivity}"`
-          : null
-        },
+                experience: ${
+                  params.virtual.experience
+                    ? `"${params.virtual.experience}"`
+                    : null
+                },
+                interactivity:  ${
+                  params.virtual.interactivity
+                    ? `"${params.virtual.interactivity}"`
+                    : null
+                },
             }`
-        : null
-      }
+                : null
+            }
             attributes: ${attributesString}
 
           }
@@ -518,21 +581,24 @@ class OffsetData {
       }
     }
           `;
-    
+
     try {
-      const response = await makeRequest(query, "nftUpd")
-      return response
+      const response = await makeRequest(query, 'nftUpd');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //NFT SEARCH
   async nftSearch(searchQuery, returnedResults) {
+    checkApiKey(
+      this.apiKey,
+      'Try running -->  offsetdata.nftSearch({searchQuery}, {returnedResults})'
+    );
 
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.nftSearch({searchQuery}, {returnedResults})")
-
-    const { tokenId, name, description, symbol, tokenAddress, attributes } = searchQuery;
+    const { tokenId, name, description, symbol, tokenAddress, attributes } =
+      searchQuery;
     let attributesQuery = '';
     if (attributes) {
       attributesQuery = `attributes: ${attributes
@@ -556,32 +622,29 @@ class OffsetData {
         ${symbol ? `symbol: "${symbol}"` : ''}
         ${attributesQuery}
       }) {
-        ${returnedResults && returnedResults.length > 0
-        ? returnedResults.join('\n')
-        : 'status'
+        ${
+          returnedResults && returnedResults.length > 0
+            ? returnedResults.join('\n')
+            : 'status'
         }
       }
     }
   `;
-   
+
     try {
-      const response = await makeRequest(query, "nftSearch")
-      return response
+      const response = await makeRequest(query, 'nftSearch');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
-    
-}
+  }
 
   //NFT MAPP ALL
-  async nftMapAll(
-    chain,
-    tokenAddress,
-    numberOfTokens,
-    rangeFromTo
-  ) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.nftMapAll('chain', 'tokenAddress', 'numberOfTokens', 'rangeFromTo')")
+  async nftMapAll(chain, tokenAddress, numberOfTokens, rangeFromTo) {
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.nftMapAll('chain', 'tokenAddress', 'numberOfTokens', 'rangeFromTo')"
+    );
 
     let tempRangeFrom = '';
     let tempRangeTo = '';
@@ -620,24 +683,26 @@ class OffsetData {
         }
       }
     `;
-   
+
     try {
-      const response = await makeRequest(query, "nftMapAll")
-      return response
+      const response = await makeRequest(query, 'nftMapAll');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //DATA ADD
   async dataAdd(dataObject) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.dataAdd({data object})")
+    checkApiKey(
+      this.apiKey,
+      'Try running -->  offsetdata.dataAdd({data object})'
+    );
 
     // checking if data object provided
     if (!dataObject || typeof dataObject !== 'object') {
       throw new Error(
-        "Data object is required. Try running -->  offsetdata.dataAdd({data object})"
+        'Data object is required. Try running -->  offsetdata.dataAdd({data object})'
       );
     }
     // checking if data object is empty
@@ -709,7 +774,9 @@ class OffsetData {
         throw new Error('"Fields" must be an object.');
       }
       if (Object.keys(dataObject.fields).length < 1) {
-        throw new Error('At least one field is required for advanced form type.');
+        throw new Error(
+          'At least one field is required for advanced form type.'
+        );
       }
       if (!dataObject.customFields) {
         throw new Error(
@@ -725,17 +792,22 @@ class OffsetData {
         );
       }
 
-      const modifiedFields = Object.keys(dataObject.fields).reduce((acc, key) => {
-        acc[key.replace(/"/g, '')] = dataObject.fields[key];
-        return acc;
-      }, {});
-
-      const modifiedCustomFields = dataObject.customFields.map((customField) => {
-        return Object.keys(customField).reduce((acc, key) => {
-          acc[key.replace(/"/g, '')] = customField[key];
+      const modifiedFields = Object.keys(dataObject.fields).reduce(
+        (acc, key) => {
+          acc[key.replace(/"/g, '')] = dataObject.fields[key];
           return acc;
-        }, {});
-      });
+        },
+        {}
+      );
+
+      const modifiedCustomFields = dataObject.customFields.map(
+        (customField) => {
+          return Object.keys(customField).reduce((acc, key) => {
+            acc[key.replace(/"/g, '')] = customField[key];
+            return acc;
+          }, {});
+        }
+      );
       const customFieldsString = JSON.stringify(modifiedCustomFields).replace(
         /"([^"]+)":/g,
         '$1:'
@@ -764,19 +836,25 @@ class OffsetData {
         }
       }`;
     }
-    
+
     try {
-      const response = await makeRequestWithDataObject(query, "dataAdd", dataObject)
-      return response
+      const response = await makeRequestWithDataObject(
+        query,
+        'dataAdd',
+        dataObject
+      );
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //DATA VERIFY
   async dataVerify(dataObject, hashedData) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.dataVerify({data object}, '0xHasheData')")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.dataVerify({data object}, '0xHasheData')"
+    );
 
     // checking if data object provided
     if (!dataObject || typeof dataObject !== 'object') {
@@ -847,7 +925,9 @@ class OffsetData {
         throw new Error('"Fields" must be an object.');
       }
       if (Object.keys(dataObject.fields).length < 1) {
-        throw new Error('At least one field is required for advanced form type.');
+        throw new Error(
+          'At least one field is required for advanced form type.'
+        );
       }
       if (!dataObject.customFields) {
         throw new Error(
@@ -863,17 +943,22 @@ class OffsetData {
         );
       }
 
-      const modifiedFields = Object.keys(dataObject.fields).reduce((acc, key) => {
-        acc[key.replace(/"/g, '')] = dataObject.fields[key];
-        return acc;
-      }, {});
-
-      const modifiedCustomFields = dataObject.customFields.map((customField) => {
-        return Object.keys(customField).reduce((acc, key) => {
-          acc[key.replace(/"/g, '')] = customField[key];
+      const modifiedFields = Object.keys(dataObject.fields).reduce(
+        (acc, key) => {
+          acc[key.replace(/"/g, '')] = dataObject.fields[key];
           return acc;
-        }, {});
-      });
+        },
+        {}
+      );
+
+      const modifiedCustomFields = dataObject.customFields.map(
+        (customField) => {
+          return Object.keys(customField).reduce((acc, key) => {
+            acc[key.replace(/"/g, '')] = customField[key];
+            return acc;
+          }, {});
+        }
+      );
       const customFieldsString = JSON.stringify(modifiedCustomFields).replace(
         /"([^"]+)":/g,
         '$1:'
@@ -904,17 +989,23 @@ class OffsetData {
     }
 
     try {
-      const response = await makeRequestWithDataObject(query, "dataVerify", dataObject)
-      return response
+      const response = await makeRequestWithDataObject(
+        query,
+        'dataVerify',
+        dataObject
+      );
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //DATA FIND
   async dataFind(submissionHash, searchParams) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.dataFind('0xSubmissionHash', {search params})")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.dataFind('0xSubmissionHash', {search params})"
+    );
 
     // checking if submission hash provided
     if (typeof submissionHash !== 'string') {
@@ -949,17 +1040,19 @@ class OffsetData {
     }  `;
 
     try {
-      const response = await makeRequest(query, "dataFind")
-      return response
+      const response = await makeRequest(query, 'dataFind');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //TX GET
   async txGet(params, results) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.txGet('chain', 'walletAddress', 'transactionType', 'tokenType')")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.txGet('chain', 'walletAddress', 'transactionType', 'tokenType')"
+    );
 
     let tokenOrEth = null;
     if (params.tokenType.toLowerCase() === 'erc20') {
@@ -999,20 +1092,22 @@ class OffsetData {
           }
         }
       }
-  ` ;
-   
+  `;
+
     try {
-      const response = await makeRequest(query, "txGet")
-      return response
+      const response = await makeRequest(query, 'txGet');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //DATA ALL
   async dataAll(searchParams) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.dataAll([search params])")
+    checkApiKey(
+      this.apiKey,
+      'Try running -->  offsetdata.dataAll([search params])'
+    );
 
     // checking if search params provided
     if (typeof searchParams !== 'object') {
@@ -1040,17 +1135,19 @@ class OffsetData {
     `;
 
     try {
-      const response = await makeRequest(query, "dataAll")
-      return response
+      const response = await makeRequest(query, 'dataAll');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //USER USAGE
   async userUsage(range, results) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.userUsage('range', [results])")
+    checkApiKey(
+      this.apiKey,
+      "Try running -->  offsetdata.userUsage('range', [results])"
+    );
 
     // const returnParams = {'range', 'usage', 'cost'}
 
@@ -1069,17 +1166,16 @@ class OffsetData {
     `;
 
     try {
-      const response = await makeRequest(query, "userUsage")
-      return response
+      const response = await makeRequest(query, 'userUsage');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
 
   //TOKEN PRICE GET
   async priceGet(token, results) {
-
-    checkApiKey(this.apiKey, "Try running -->  offsetdata.priceGet('token')")
+    checkApiKey(this.apiKey, "Try running -->  offsetdata.priceGet('token')");
 
     const resultFiller = ['status', 'priceUSD', 'lastUpdated'];
 
@@ -1093,16 +1189,14 @@ class OffsetData {
         }
       }
     `;
-    
+
     try {
-      const response = await makeRequest(query, "priceGet")
-      return response
+      const response = await makeRequest(query, 'priceGet');
+      return response;
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }
-
-
 }
 
 module.exports = OffsetData;
