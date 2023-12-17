@@ -8,10 +8,10 @@ npm install offsetdata
 
 # Usage
 ```
-const offsetdata = require('offsetdata');
-const od = new offsetdata('your-api-key');
+const OffsetData = require('offsetdata');
+const offsetdata = new OffsetData('your-api-key');
 
-od.version(['date', 'current', 'creator', 'company', 'status'])
+offsetdata.version(['date', 'current', 'creator', 'company', 'status'])
   .then((result) => {
     console.log('Version:', result);
   })
